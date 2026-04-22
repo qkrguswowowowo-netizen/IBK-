@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -8,471 +9,278 @@
 <meta name="apple-mobile-web-app-title" content="IBK기업은행">
 <title>IBK기업은행</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { height:100%; }
-  body {
-    background:#1c1c1e;
-    color:#fff;
-    font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
-    max-width:430px;
-    margin:0 auto;
-    position:relative;
-    overflow:hidden;
-    height:100%;
-  }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; }
+body { background:#1c1c1e; color:#fff; font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif; max-width:430px; margin:0 auto; position:relative; height:100%; }
+.screen { position:absolute; top:0; left:0; width:100%; height:100%; overflow-y:auto; background:#1c1c1e; transition:transform 0.32s cubic-bezier(.4,0,.2,1); -webkit-overflow-scrolling:touch; }
+.screen.hide-right { transform:translateX(100%); pointer-events:none; }
+.screen.hide-left { transform:translateX(-100%); pointer-events:none; }
+.screen.show { transform:translateX(0); }
 
-  /* ---- 화면 전환 ---- */
-  .screen {
-    position:absolute; top:0; left:0;
-    width:100%; height:100%;
-    background:#1c1c1e;
-    overflow-y:auto;
-    transition:transform 0.32s cubic-bezier(.4,0,.2,1);
-    -webkit-overflow-scrolling:touch;
-  }
-  .screen.slide-right { transform:translateX(100%); }
-  .screen.slide-left  { transform:translateX(0); }
+/* 팝업 */
+#popupOverlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.65); z-index:1000; display:flex; align-items:flex-end; max-width:430px; margin:0 auto; }
+.popup-sheet { width:100%; background:#1a8c6a; border-radius:20px 20px 0 0; overflow:hidden; }
+.popup-body { display:flex; justify-content:space-between; align-items:flex-end; padding:28px 24px 16px; }
+.popup-small { font-size:13px; color:#a8e6cf; margin-bottom:8px; }
+.popup-title { font-size:21px; font-weight:800; color:#fff; line-height:1.35; }
+.popup-btn { display:inline-block; background:#0d5c44; color:#fff; padding:10px 18px; border-radius:20px; font-size:13px; font-weight:700; margin-top:12px; cursor:pointer; }
+.popup-mascot { width:120px; flex-shrink:0; display:flex; align-items:flex-end; justify-content:center; }
+.popup-footer { display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.2); padding:15px 24px; background:#1a8c6a; }
+.popup-footer-btn { font-size:14px; color:#a8e6cf; cursor:pointer; }
+.popup-divider { width:1px; height:14px; background:rgba(255,255,255,0.3); }
 
-  /* ---- 상태바 숨김 ---- */
-  .status-bar { display:none; }
-  .tr-status { display:none; }
+/* 메인 */
+.main-header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 12px; }
+.header-left { display:flex; align-items:center; gap:8px; font-size:17px; font-weight:700; color:#ebebf5cc; }
+.header-right { display:flex; gap:18px; align-items:center; }
+.h-bell { position:relative; }
+.h-bell-dot { position:absolute; top:-1px; right:-1px; width:7px; height:7px; background:#ff3b30; border-radius:50%; border:1.5px solid #1c1c1e; }
+.h-menu { display:flex; flex-direction:column; gap:5px; cursor:pointer; }
+.h-menu span { display:block; width:21px; height:2px; background:#ebebf5cc; border-radius:2px; }
+.banner { margin:0 14px 14px; background:#2c2c2e; border-radius:14px; padding:16px 18px; display:flex; justify-content:space-between; align-items:center; }
+.banner-text { font-size:15px; font-weight:700; line-height:1.5; }
+.banner-text em { color:#4e8ef7; font-style:normal; }
+.banner-icon { width:44px; height:38px; position:relative; flex-shrink:0; }
+.mail-body { position:absolute; bottom:0; width:44px; height:32px; background:#b0bec5; border-radius:3px; }
+.mail-flap { position:absolute; top:0; left:0; width:0; height:0; border-left:22px solid transparent; border-right:22px solid transparent; border-top:16px solid #90a4ae; }
+.account-section { margin:0 14px 10px; }
+.account-tabs { display:flex; }
+.tab { padding:10px 16px; font-size:14px; font-weight:600; border-radius:12px 12px 0 0; cursor:pointer; color:#8e8e93; background:#2c2c2e; display:flex; align-items:center; gap:6px; }
+.tab.active { background:#3a3a3c; color:#fff; }
+.tab-icon { width:20px; height:20px; border-radius:50%; background:linear-gradient(135deg,#1565c0,#42a5f5); display:flex; align-items:center; justify-content:center; }
+.account-card { background:#3a3a3c; border-radius:0 12px 12px 12px; padding:18px; position:relative; }
+.three-dots { position:absolute; top:16px; right:16px; display:flex; flex-direction:column; gap:3px; }
+.three-dots span { display:block; width:4px; height:4px; border-radius:50%; background:#8e8e93; }
+.acct-name { font-size:15px; font-weight:700; margin-bottom:5px; line-height:1.4; padding-right:20px; }
+.acct-num { font-size:13px; color:#8e8e93; margin-bottom:18px; display:flex; align-items:center; gap:6px; }
+.copy-box { width:14px; height:14px; border:1.5px solid #8e8e93; border-radius:2px; position:relative; flex-shrink:0; }
+.copy-box::after { content:’’; position:absolute; top:-3px; left:3px; width:10px; height:10px; border:1.5px solid #8e8e93; border-radius:2px; background:#3a3a3c; }
+.balance-row { display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-bottom:14px; }
+.balance-num { font-size:30px; font-weight:800; letter-spacing:-0.5px; }
+.balance-won { font-size:20px; font-weight:700; }
+.refresh { width:26px; height:26px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.refresh svg { width:22px; height:22px; stroke:#8e8e93; fill:none; stroke-width:2; }
+.refresh.spin { animation:spin 0.5s ease; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.btn-row { display:flex; gap:10px; }
+.ibk-btn { flex:1; padding:13px 0; border-radius:10px; border:none; background:#4e8ef7; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+.ibk-btn:active { opacity:0.85; transform:scale(0.98); }
+.page-dots { display:flex; justify-content:center; gap:6px; margin:10px 0 14px; }
+.pdot { height:5px; border-radius:3px; background:#fff; width:22px; }
+.pdot.off { width:5px; background:#48484a; }
+.recent-box { margin:0 14px 14px; background:#2c2c2e; border-radius:12px; padding:15px 18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+.recent-box span { font-size:15px; font-weight:700; }
+.custom-title { font-size:16px; font-weight:700; padding:0 18px 12px; }
+.custom-grid { display:flex; gap:12px; padding:0 14px 16px; overflow-x:auto; scrollbar-width:none; }
+.custom-grid::-webkit-scrollbar { display:none; }
+.custom-item { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:60px; }
+.custom-icon { width:56px; height:56px; background:#2c2c2e; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.custom-label { font-size:12px; color:#ebebf5b3; text-align:center; white-space:nowrap; }
+.spacer { height:90px; }
+.bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:#1c1c1e; border-top:1px solid #38383a; display:flex; padding:10px 0 22px; z-index:200; }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; color:#636366; cursor:pointer; }
+.nav-item.active { color:#4e8ef7; }
+.nav-item svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.7; }
+.nav-center-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+.nav-center-btn { width:50px; height:50px; background:#4e8ef7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-top:-18px; box-shadow:0 4px 16px rgba(78,142,247,0.5); }
+.nav-center-btn svg { width:26px; height:26px; fill:none; stroke:#fff; stroke-width:1.8; }
+.nav-center-label { font-size:11px; color:#4e8ef7; font-weight:700; }
 
-  /* ---- 메인 헤더 ---- */
-  .main-header {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:10px 20px 14px;
-  }
-  .main-header-left {
-    display:flex; align-items:center; gap:8px;
-    font-size:18px; font-weight:700; color:#ebebf5cc;
-  }
-  .todo-icon {
-    width:22px; height:22px; border:2px solid #ebebf5cc;
-    border-radius:4px; display:flex; align-items:center; justify-content:center;
-  }
-  .todo-icon::before {
-    content:''; display:block; width:10px; height:8px;
-    border-left:2px solid #ebebf5cc; border-bottom:2px solid #ebebf5cc;
-    transform:rotate(-45deg) translateY(-1px);
-  }
-  .main-header-right { display:flex; gap:20px; align-items:center; }
-  .bell-icon { position:relative; }
-  .bell-icon svg { width:24px; height:24px; fill:none; stroke:#ebebf5cc; stroke-width:1.8; }
-  .bell-dot {
-    position:absolute; top:-2px; right:-2px;
-    width:8px; height:8px; background:#ff3b30; border-radius:50%;
-    border:1.5px solid #1c1c1e;
-  }
-  .chat-icon svg { width:26px; height:26px; fill:none; stroke:#ebebf5cc; stroke-width:1.6; }
-  .menu-icon { display:flex; flex-direction:column; gap:5px; cursor:pointer; }
-  .menu-icon span { display:block; width:22px; height:2px; background:#ebebf5cc; border-radius:2px; }
+/* 수취인 */
+#recipientScreen { background:#111113; }
+.tr-simple-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
+.tr-back { cursor:pointer; width:32px; height:32px; display:flex; align-items:center; justify-content:center; }
+.tr-back svg { width:20px; height:20px; stroke:#fff; fill:none; stroke-width:2.5; }
+.tr-page-title { font-size:18px; font-weight:700; }
+.tr-menu svg { width:22px; height:22px; stroke:#fff; fill:none; stroke-width:1.8; }
+.rc-body { padding:20px 20px 0; }
+.rc-question { font-size:24px; font-weight:800; margin-bottom:22px; }
+.rc-input-label { font-size:13px; color:#8e8e93; margin-bottom:8px; }
+.rc-input-box { width:100%; background:#2c2c2e; border-radius:12px; padding:15px 16px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.rc-input-box span { font-size:15px; color:#636366; }
+.rc-input-box svg { width:22px; height:22px; stroke:#636366; fill:none; stroke-width:1.6; }
+.rc-quick { display:flex; justify-content:flex-end; gap:16px; margin-bottom:20px; }
+.rc-quick-btn { display:flex; align-items:center; gap:5px; font-size:14px; color:#8e8e93; cursor:pointer; }
+.rc-quick-btn svg { width:16px; height:16px; stroke:#8e8e93; fill:none; stroke-width:1.8; }
+.rc-tabs { display:flex; background:#2c2c2e; border-radius:10px; padding:3px; margin-bottom:22px; }
+.rc-tab { flex:1; text-align:center; padding:9px; border-radius:8px; font-size:14px; font-weight:600; color:#8e8e93; cursor:pointer; }
+.rc-tab.active { background:#3a3a3c; color:#fff; }
+.rc-section { font-size:16px; font-weight:700; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+.rc-section svg { width:18px; height:18px; stroke:#8e8e93; fill:none; stroke-width:2; }
+.rc-recent { display:flex; align-items:center; gap:6px; font-size:16px; font-weight:700; margin-bottom:12px; }
+.rc-count { color:#4e8ef7; }
+.rc-person { display:flex; align-items:center; gap:14px; padding:13px 0; cursor:pointer; border-bottom:1px solid #2c2c2e; }
+.rc-person:last-child { border-bottom:none; }
+.rc-person:active { opacity:0.7; }
+.rc-logo { width:44px; height:44px; border-radius:50%; flex-shrink:0; overflow:hidden; }
+.rc-info { flex:1; }
+.rc-name { font-size:15px; font-weight:700; margin-bottom:3px; }
+.rc-bank { font-size:13px; color:#8e8e93; }
 
-  /* ---- 배너 ---- */
-  .banner {
-    margin:0 14px 14px;
-    background:#2c2c2e;
-    border-radius:14px;
-    padding:16px 18px;
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .banner-text { font-size:16px; font-weight:700; line-height:1.5; }
-  .banner-text strong { color:#fff; }
-  .banner-text strong span { color:#4e8ef7; }
-  .banner-mail {
-    width:46px; height:38px; position:relative; flex-shrink:0;
-  }
-  .mail-body {
-    width:46px; height:34px; background:#b0b8d0; border-radius:4px;
-    position:absolute; bottom:0;
-  }
-  .mail-flap {
-    width:0; height:0;
-    border-left:23px solid transparent;
-    border-right:23px solid transparent;
-    border-top:18px solid #8a94b0;
-    position:absolute; top:0; left:0;
-  }
-
-  /* ---- 계좌 카드 ---- */
-  .account-section { margin:0 14px 12px; }
-  .account-tabs { display:flex; }
-  .tab {
-    padding:10px 16px; font-size:14px; font-weight:600;
-    border-radius:12px 12px 0 0; cursor:pointer;
-    color:#8e8e93; background:#2c2c2e;
-  }
-  .tab.active { background:#3a3a3c; color:#fff; }
-
-  .account-card {
-    background:#3a3a3c;
-    border-radius:0 12px 12px 12px;
-    padding:18px 18px 16px;
-    position:relative;
-  }
-  .three-dots {
-    position:absolute; top:16px; right:16px;
-    display:flex; flex-direction:column; gap:3px; cursor:pointer;
-  }
-  .three-dots span { display:block; width:4px; height:4px; border-radius:50%; background:#8e8e93; }
-
-  .acct-name { font-size:15px; font-weight:700; margin-bottom:6px; line-height:1.4; }
-  .acct-num {
-    font-size:13px; color:#8e8e93; margin-bottom:18px;
-    display:flex; align-items:center; gap:6px;
-  }
-  .copy-icon {
-    display:inline-flex; align-items:center; justify-content:center;
-    width:14px; height:14px; border:1.5px solid #8e8e93; border-radius:2px;
-    position:relative;
-  }
-  .copy-icon::after {
-    content:''; position:absolute; top:-3px; left:3px;
-    width:10px; height:10px; border:1.5px solid #8e8e93;
-    border-radius:2px; background:#3a3a3c;
-  }
-
-  .balance-row {
-    display:flex; justify-content:flex-end; align-items:center; gap:8px;
-    margin-bottom:14px;
-  }
-  .balance-amount { font-size:30px; font-weight:800; letter-spacing:-0.5px; }
-  .balance-unit { font-size:20px; font-weight:700; }
-  .refresh-btn {
-    width:26px; height:26px; cursor:pointer; display:flex;
-    align-items:center; justify-content:center;
-  }
-  .refresh-btn svg { width:22px; height:22px; stroke:#8e8e93; fill:none; stroke-width:2; }
-  .refresh-btn.spin { animation:spin 0.5s ease; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  .btn-row { display:flex; gap:10px; }
-  .transfer-btn, .atm-btn {
-    flex:1; padding:13px 0; border-radius:10px; border:none;
-    font-size:15px; font-weight:700; cursor:pointer;
-    background:#4e8ef7; color:#fff;
-    font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;
-  }
-  .transfer-btn:active, .atm-btn:active { opacity:0.85; transform:scale(0.98); }
-
-  /* ---- 페이지 도트 ---- */
-  .page-dots { display:flex; justify-content:center; gap:6px; margin:12px 0 14px; }
-  .pdot { width:22px; height:5px; border-radius:3px; background:#fff; }
-  .pdot.off { width:5px; background:#48484a; }
-
-  /* ---- 최근 이체내역 ---- */
-  .recent-section {
-    margin:0 14px 14px;
-    background:#2c2c2e; border-radius:12px;
-    padding:15px 18px;
-    display:flex; justify-content:space-between; align-items:center;
-    cursor:pointer;
-  }
-  .recent-title { font-size:15px; font-weight:700; }
-  .chevron-down svg { width:18px; height:18px; stroke:#8e8e93; fill:none; stroke-width:2.5; }
-
-  /* ---- 맞춤메뉴 ---- */
-  .custom-title { font-size:16px; font-weight:700; padding:0 18px 12px; }
-  .custom-grid {
-    display:flex; gap:14px; padding:0 14px 16px;
-    overflow-x:auto; scrollbar-width:none;
-  }
-  .custom-grid::-webkit-scrollbar { display:none; }
-  .custom-item { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:60px; }
-  .custom-icon {
-    width:56px; height:56px; background:#2c2c2e; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .custom-icon svg { width:28px; height:28px; }
-  .custom-label { font-size:12px; color:#ebebf5b3; white-space:nowrap; text-align:center; }
-
-  .spacer { height:90px; }
-
-  /* ---- 하단 탭바 ---- */
-  .bottom-nav {
-    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:430px;
-    background:#1c1c1e; border-top:1px solid #38383a;
-    display:flex; padding:10px 0 22px; z-index:200;
-  }
-  .nav-item {
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-    font-size:11px; color:#636366; cursor:pointer;
-  }
-  .nav-item.active { color:#4e8ef7; }
-  .nav-item svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.7; }
-  .nav-center-wrap {
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-    cursor:pointer;
-  }
-  .nav-center-btn {
-    width:50px; height:50px; background:#4e8ef7; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    margin-top:-18px;
-    box-shadow:0 4px 16px rgba(78,142,247,0.5);
-  }
-  .nav-center-btn svg { width:26px; height:26px; fill:none; stroke:#fff; stroke-width:1.8; }
-  .nav-center-label { font-size:11px; color:#4e8ef7; font-weight:700; }
-
-  /* =========== 수취인 선택 화면 =========== */
-  #recipientScreen { background:#111113; }
-  .rc-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
-  .rc-back { cursor:pointer; } .rc-back svg { width:20px; height:20px; stroke:#fff; fill:none; stroke-width:2.5; }
-  .rc-title { font-size:18px; font-weight:700; }
-  .rc-menu svg { width:22px; height:22px; stroke:#fff; fill:none; stroke-width:1.8; }
-  .rc-body { padding:20px 20px 0; }
-  .rc-question { font-size:24px; font-weight:800; margin-bottom:22px; }
-  .rc-input-label { font-size:13px; color:#8e8e93; margin-bottom:8px; }
-  .rc-input {
-    width:100%; background:#2c2c2e; border:none; border-radius:12px;
-    padding:16px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;
-  }
-  .rc-input span { color:#636366; font-size:15px; }
-  .rc-input svg { width:22px; height:22px; stroke:#636366; fill:none; stroke-width:1.6; }
-  .rc-quick { display:flex; justify-content:flex-end; gap:16px; margin-bottom:20px; }
-  .rc-quick-btn { display:flex; align-items:center; gap:5px; font-size:14px; color:#8e8e93; cursor:pointer; }
-  .rc-quick-btn svg { width:16px; height:16px; stroke:#8e8e93; fill:none; stroke-width:1.8; }
-  .rc-tabs { display:flex; background:#2c2c2e; border-radius:10px; padding:3px; margin-bottom:22px; }
-  .rc-tab { flex:1; text-align:center; padding:9px; border-radius:8px; font-size:14px; font-weight:600; color:#8e8e93; cursor:pointer; }
-  .rc-tab.active { background:#3a3a3c; color:#fff; }
-  .rc-section-title { font-size:16px; font-weight:700; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
-  .rc-recent-title { font-size:16px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
-  .rc-recent-count { color:#4e8ef7; }
-  .rc-person { display:flex; align-items:center; gap:14px; padding:13px 0; cursor:pointer; border-bottom:1px solid #2c2c2e; }
-  .rc-person:last-child { border-bottom:none; }
-  .rc-person:active { opacity:0.7; }
-  .rc-person-logo { width:44px; height:44px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
-  .rc-person-info { flex:1; }
-  .rc-person-name { font-size:15px; font-weight:700; margin-bottom:3px; }
-  .rc-person-bank { font-size:13px; color:#8e8e93; }
-  .rc-person-date { font-size:12px; color:#636366; white-space:nowrap; text-align:right; }
-
-  /* =========== 이체 화면 =========== */
-  #transferScreen { background:#111113; }
-
-  .tr-status {
-    display:none;
-  }
-  .tr-header {
-    display:flex; align-items:center;
-    padding:10px 20px 18px; gap:6px;
-  }
-  .back-btn {
-    display:flex; align-items:center; justify-content:center;
-    width:32px; height:32px; cursor:pointer;
-  }
-  .back-btn svg { width:20px; height:20px; stroke:#fff; fill:none; stroke-width:2.5; }
-  .tr-title { font-size:18px; font-weight:700; }
-  .tr-cancel { margin-left:auto; font-size:15px; color:#fff; cursor:pointer; font-weight:400; }
-
-  .tr-body { padding:6px 20px 0; }
-
-  .tr-section-label { font-size:15px; font-weight:700; margin-bottom:14px; }
-
-  .tr-from { display:flex; align-items:center; gap:10px; margin-bottom:5px; }
-  .ibk-logo-sm {
-    width:32px; height:32px; border-radius:50%;
-    background:linear-gradient(135deg,#0d47a1,#1976d2,#42a5f5);
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  }
-  .ibk-logo-sm svg { width:18px; height:18px; }
-  .tr-from-text { font-size:15px; font-weight:700; }
-  .tr-from-chevron svg { width:14px; height:14px; stroke:#8e8e93; fill:none; stroke-width:2.5; }
-  .tr-avail { font-size:13px; color:#8e8e93; padding-left:42px; margin-bottom:22px; }
-
-  .tr-divider { height:1px; background:#2c2c2e; margin-bottom:22px; }
-
-  .tr-to { display:flex; align-items:center; gap:10px; margin-bottom:28px; }
-  .kb-logo-sm {
-    width:32px; height:32px; border-radius:50%;
-    background:#f5c400;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    font-size:11px; font-weight:900; color:#000;
-  }
-  .tr-to-text { font-size:15px; font-weight:700; }
-  .tr-change { margin-left:auto; font-size:14px; color:#4e8ef7; font-weight:600; cursor:pointer; }
-
-  .tr-amount-wrap { border-bottom:1.5px solid #38383a; padding-bottom:12px; margin-bottom:0; }
-  .tr-amount-ph { font-size:22px; color:#48484a; font-weight:600; }
-
-  .tr-flex-gap { min-height:150px; }
-
-  .tr-usage {
-    text-align:center; font-size:13px; color:#48484a;
-    margin:20px 0 18px; cursor:pointer;
-    text-decoration:underline; text-decoration-color:#48484a;
-  }
-
-  .tr-checkbox-row { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
-  .tr-checkbox {
-    width:22px; height:22px; border:1.5px solid #48484a;
-    border-radius:5px; cursor:pointer; flex-shrink:0;
-  }
-  .tr-checkbox-label { font-size:15px; color:#ebebf5b3; }
-
-  .tr-next-btn {
-    width:100%; padding:16px; border-radius:14px; border:none;
-    background:#2c2c2e; color:#636366;
-    font-size:17px; font-weight:600; cursor:default; margin-bottom:34px;
-    font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;
-  }
+/* 이체 */
+#transferScreen { background:#111113; }
+.tr-header { display:flex; align-items:center; padding:14px 20px 16px; gap:6px; }
+.tr-title { font-size:18px; font-weight:700; }
+.tr-cancel { margin-left:auto; font-size:15px; color:#fff; cursor:pointer; }
+.tr-body { padding:6px 20px 0; }
+.tr-label { font-size:15px; font-weight:700; margin-bottom:12px; }
+.tr-from-row { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.ibk-sm-logo { width:32px; height:32px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#0d47a1,#1976d2,#42a5f5); display:flex; align-items:center; justify-content:center; }
+.ibk-sm-logo svg { width:16px; height:16px; }
+.tr-from-text { font-size:15px; font-weight:700; }
+.tr-chevron svg { width:14px; height:14px; stroke:#8e8e93; fill:none; stroke-width:2.5; }
+.tr-avail { font-size:13px; color:#8e8e93; padding-left:42px; margin-bottom:20px; }
+.tr-divider { height:1px; background:#2c2c2e; margin-bottom:20px; }
+.tr-to-row { display:flex; align-items:center; gap:10px; margin-bottom:26px; }
+.tr-to-logo { width:32px; height:32px; border-radius:50%; flex-shrink:0; overflow:hidden; }
+.tr-to-text { font-size:15px; font-weight:700; }
+.tr-change { margin-left:auto; font-size:14px; color:#4e8ef7; font-weight:600; cursor:pointer; }
+.tr-amount-wrap { border-bottom:1.5px solid #38383a; padding-bottom:12px; }
+.tr-amount-ph { font-size:22px; color:#48484a; font-weight:600; }
+.tr-gap { min-height:160px; }
+.tr-usage { text-align:center; font-size:13px; color:#48484a; margin:20px 0 18px; cursor:pointer; text-decoration:underline; text-decoration-color:#48484a; }
+.tr-cb-row { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+.tr-cb { width:22px; height:22px; border:1.5px solid #48484a; border-radius:5px; cursor:pointer; flex-shrink:0; }
+.tr-cb-label { font-size:15px; color:#ebebf5b3; }
+.tr-next { width:100%; padding:16px; border-radius:14px; border:none; background:#2c2c2e; color:#636366; font-size:17px; font-weight:600; cursor:default; margin-bottom:34px; font-family:inherit; }
 </style>
+
 </head>
 <body>
 
-<!-- ========== 메인 화면 ========== -->
-<div class="screen slide-left" id="mainScreen">
-  <!-- 상태바 -->
-  <div class="status-bar">
-    <span class="clock-el">14:25</span>
-    <div class="sig-icons">
-      <div class="sig-bars">
-        <span></span><span></span><span></span><span></span>
+<!-- 팝업 -->
+
+<div id="popupOverlay">
+  <div class="popup-sheet">
+    <div class="popup-body">
+      <div class="popup-left">
+        <div class="popup-small">잠깐만! 오늘 퀴즈 푸셨나요?</div>
+        <div class="popup-title">매일매일 OX퀴즈</div>
+        <div class="popup-btn">자세히 보기</div>
       </div>
-      <span class="wifi-icon">
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-          <path d="M8 9.5a1 1 0 100 2 1 1 0 000-2z" fill="#fff"/>
-          <path d="M5.17 7.17a4 4 0 015.66 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M2.34 4.34a8 8 0 0111.32 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      <div class="popup-mascot">
+        <svg width="110" height="120" viewBox="0 0 110 120" fill="none">
+          <ellipse cx="55" cy="85" rx="28" ry="30" fill="#1565c0"/>
+          <ellipse cx="55" cy="88" rx="16" ry="18" fill="#fff"/>
+          <circle cx="55" cy="52" r="26" fill="#fff"/>
+          <circle cx="46" cy="50" r="4" fill="#1565c0"/>
+          <circle cx="64" cy="50" r="4" fill="#1565c0"/>
+          <circle cx="47" cy="49" r="1.5" fill="#fff"/>
+          <circle cx="65" cy="49" r="1.5" fill="#fff"/>
+          <ellipse cx="40" cy="56" rx="5" ry="3" fill="#ffb3ba" opacity="0.7"/>
+          <ellipse cx="70" cy="56" rx="5" ry="3" fill="#ffb3ba" opacity="0.7"/>
+          <path d="M47 60 Q55 67 63 60" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <rect x="34" y="30" width="42" height="6" rx="3" fill="#1565c0"/>
+          <polygon points="55,18 75,30 35,30" fill="#1565c0"/>
+          <line x1="75" y1="30" x2="80" y2="40" stroke="#FFD700" stroke-width="2"/>
+          <circle cx="80" cy="42" r="3" fill="#FFD700"/>
+          <ellipse cx="27" cy="80" rx="8" ry="14" fill="#1565c0" transform="rotate(-15 27 80)"/>
+          <ellipse cx="83" cy="80" rx="8" ry="14" fill="#1565c0" transform="rotate(15 83 80)"/>
+          <circle cx="30" cy="95" r="8" fill="#FFD700"/>
+          <text x="26" y="99" font-size="9" font-weight="bold" fill="#b8860b">₩</text>
+          <text x="82" y="65" font-size="18" fill="#a855f7" font-weight="bold">?</text>
+          <text x="18" y="75" font-size="14" fill="#a855f7" font-weight="bold">?</text>
         </svg>
-      </span>
-      <div class="battery-wrap"><span>54</span></div>
+      </div>
+    </div>
+    <div class="popup-footer">
+      <div class="popup-footer-btn" onclick="closePopup()">하루 안보기</div>
+      <div class="popup-divider"></div>
+      <div class="popup-footer-btn" onclick="closePopup()">닫기</div>
     </div>
   </div>
+</div>
 
-  <!-- 헤더 -->
+<!-- 메인 -->
+
+<div class="screen show" id="mainScreen">
   <div class="main-header">
-    <div class="main-header-left">
+    <div class="header-left">
       할 일
-      <div style="width:22px;height:22px;border:2px solid #ebebf5cc;border-radius:4px;display:flex;align-items:center;justify-content:center;">
-        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
-          <rect x="0" y="0" width="12" height="2" rx="1" fill="#ebebf5cc"/>
-          <rect x="0" y="4" width="8" height="2" rx="1" fill="#ebebf5cc"/>
-          <rect x="0" y="8" width="10" height="2" rx="1" fill="#ebebf5cc"/>
-        </svg>
-      </div>
+      <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+        <rect x="0" y="0" width="20" height="3" rx="1.5" fill="#ebebf5cc"/>
+        <rect x="0" y="7" width="14" height="3" rx="1.5" fill="#ebebf5cc"/>
+        <rect x="0" y="14" width="17" height="3" rx="1.5" fill="#ebebf5cc"/>
+      </svg>
     </div>
-    <div class="main-header-right">
-      <div class="bell-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2H10c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="#ebebf5cc"/></svg>
-        <div class="bell-dot"></div>
-      </div>
-      <div class="chat-icon">
-        <svg viewBox="0 0 26 26">
-          <circle cx="13" cy="13" r="10" stroke="#ebebf5cc" stroke-width="1.6" fill="none"/>
-          <circle cx="9" cy="13" r="1.2" fill="#ebebf5cc"/>
-          <circle cx="13" cy="13" r="1.2" fill="#ebebf5cc"/>
-          <circle cx="17" cy="13" r="1.2" fill="#ebebf5cc"/>
+    <div class="header-right">
+      <div class="h-bell">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 22c1.1 0 2-.9 2-2H10c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="#ebebf5cc"/>
         </svg>
+        <div class="h-bell-dot"></div>
       </div>
-      <div class="menu-icon"><span></span><span></span><span></span></div>
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="13" r="10" stroke="#ebebf5cc" stroke-width="1.6"/>
+        <circle cx="9" cy="13" r="1.3" fill="#ebebf5cc"/>
+        <circle cx="13" cy="13" r="1.3" fill="#ebebf5cc"/>
+        <circle cx="17" cy="13" r="1.3" fill="#ebebf5cc"/>
+      </svg>
+      <div class="h-menu"><span></span><span></span><span></span></div>
     </div>
   </div>
 
-  <!-- 배너 -->
   <div class="banner">
-    <div class="banner-text">
-      <strong><span>IBK</span>인증서 발급하고 경품<br>받아가세요!</strong>
-    </div>
-    <div class="banner-mail">
-      <div class="mail-flap"></div>
-      <div class="mail-body"></div>
-    </div>
+    <div class="banner-text"><em>IBK</em>인증서 발급하고 경품<br>받아가세요!</div>
+    <div class="banner-icon"><div class="mail-flap"></div><div class="mail-body"></div></div>
   </div>
 
-  <!-- 계좌 카드 -->
   <div class="account-section">
     <div class="account-tabs">
       <div class="tab active">
-        <span style="display:inline-flex;align-items:center;gap:6px;">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <circle cx="9" cy="9" r="9" fill="#1565c0"/>
-            <path d="M5 9l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          기업은행
-        </span>
+        <div class="tab-icon">
+          <svg viewBox="0 0 12 12" fill="none" width="12" height="12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        기업은행
       </div>
       <div class="tab">다른금융</div>
     </div>
     <div class="account-card">
       <div class="three-dots"><span></span><span></span><span></span></div>
       <div class="acct-name">저축예금(IBK중기근로자급여파킹통장)</div>
-      <div class="acct-num">
-        341-127621-02-013
-        <div class="copy-icon"></div>
-      </div>
+      <div class="acct-num">341-127621-02-013 <div class="copy-box"></div></div>
       <div class="balance-row">
-        <div class="balance-amount" id="balanceAmt">4,019,957</div>
-        <div class="balance-unit">원</div>
-        <div class="refresh-btn" id="refreshBtn">
-          <svg viewBox="0 0 22 22">
-            <path d="M20 11A9 9 0 1111 2" stroke-linecap="round"/>
-            <path d="M15 2l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <div class="balance-num">4,019,957</div>
+        <div class="balance-won">원</div>
+        <div class="refresh" id="refreshBtn">
+          <svg viewBox="0 0 22 22"><path d="M20 11A9 9 0 1111 2" stroke-linecap="round"/><path d="M15 2l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
       </div>
       <div class="btn-row">
-        <button class="transfer-btn" onclick="goRecipient()">이체</button>
-        <button class="atm-btn">ATM출금</button>
+        <button class="ibk-btn" onclick="goRecipient()">이체</button>
+        <button class="ibk-btn">ATM출금</button>
       </div>
     </div>
   </div>
 
-  <!-- 도트 -->
-  <div class="page-dots">
-    <div class="pdot"></div>
-    <div class="pdot off"></div>
+  <div class="page-dots"><div class="pdot"></div><div class="pdot off"></div></div>
+
+  <div class="recent-box">
+    <span>최근 이체내역</span>
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 6l5 5 5-5" stroke="#8e8e93" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
 
-  <!-- 최근 이체내역 -->
-  <div class="recent-section">
-    <span class="recent-title">최근 이체내역</span>
-    <div class="chevron-down">
-      <svg viewBox="0 0 18 18"><path d="M4 6l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-  </div>
-
-  <!-- 맞춤메뉴 -->
   <div class="custom-title">나만의 맞춤메뉴</div>
   <div class="custom-grid">
     <div class="custom-item">
-      <div class="custom-icon">
-        <svg viewBox="0 0 28 28" fill="none" width="28" height="28">
-          <rect x="4" y="6" width="20" height="16" rx="2" stroke="#8e8ef0" stroke-width="1.8"/>
-          <circle cx="14" cy="14" r="4" stroke="#8e8ef0" stroke-width="1.8"/>
-          <path d="M4 10h20" stroke="#8e8ef0" stroke-width="1.5"/>
-        </svg>
-      </div>
+      <div class="custom-icon"><svg viewBox="0 0 28 28" fill="none" width="28" height="28"><rect x="4" y="6" width="20" height="16" rx="2" stroke="#8e8ef0" stroke-width="1.8"/><circle cx="14" cy="14" r="4" stroke="#8e8ef0" stroke-width="1.8"/><path d="M4 10h20" stroke="#8e8ef0" stroke-width="1.5"/></svg></div>
       <span class="custom-label">전체계좌조회</span>
     </div>
     <div class="custom-item">
-      <div class="custom-icon">
-        <svg viewBox="0 0 28 28" fill="none" width="28" height="28">
-          <path d="M14 4l2.5 7h7.5l-6 4.5 2.3 7-6.3-4.5L7.7 22.5 10 15.5 4 11h7.5z" stroke="#4e8ef7" stroke-width="1.6" stroke-linejoin="round"/>
-        </svg>
-      </div>
+      <div class="custom-icon"><svg viewBox="0 0 28 28" fill="none" width="28" height="28"><path d="M14 4l2.5 7h7.5l-6 4.5 2.3 7-6.3-4.5L7.7 22.5 10 15.5 4 11h7.5z" stroke="#4e8ef7" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
       <span class="custom-label">이벤트</span>
     </div>
     <div class="custom-item">
-      <div class="custom-icon">
-        <svg viewBox="0 0 28 28" fill="none" width="28" height="28">
-          <path d="M14 4l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V8z" stroke="#4e8ef7" stroke-width="1.6" stroke-linejoin="round"/>
-        </svg>
-      </div>
+      <div class="custom-icon"><svg viewBox="0 0 28 28" fill="none" width="28" height="28"><path d="M14 4l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V8z" stroke="#4e8ef7" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
       <span class="custom-label">i-ONE 가드</span>
     </div>
     <div class="custom-item">
-      <div class="custom-icon">
-        <svg viewBox="0 0 28 28" fill="none" width="28" height="28">
-          <path d="M14 6v16M6 14h16" stroke="#636366" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-      </div>
+      <div class="custom-icon"><svg viewBox="0 0 28 28" fill="none" width="28" height="28"><path d="M14 6v16M6 14h16" stroke="#636366" stroke-width="2.2" stroke-linecap="round"/></svg></div>
       <span class="custom-label">추가</span>
     </div>
   </div>
-
   <div class="spacer"></div>
 
-  <!-- 하단 탭바 -->
   <div class="bottom-nav">
     <div class="nav-item active">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-linejoin="round"/><path d="M9 22V12h6v10"/></svg>
@@ -484,9 +292,7 @@
     </div>
     <div class="nav-center-wrap">
       <div class="nav-center-btn">
-        <svg viewBox="0 0 26 26">
-          <path d="M5 13h16M13 5l8 8-8 8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg viewBox="0 0 26 26"><path d="M5 13h16M13 5l8 8-8 8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <span class="nav-center-label">톡톡송금</span>
     </div>
@@ -501,21 +307,22 @@
   </div>
 </div>
 
-<!-- ========== 수취인 선택 화면 ========== -->
-<div class="screen slide-right" id="recipientScreen">
-  <div class="rc-header">
-    <div class="rc-back" onclick="goBack()">
+<!-- 수취인 선택 -->
+
+<div class="screen hide-right" id="recipientScreen">
+  <div class="tr-simple-header">
+    <div class="tr-back" onclick="goBack()">
       <svg viewBox="0 0 20 20"><path d="M13 4l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <span class="rc-title">이체</span>
-    <div class="rc-menu">
+    <span class="tr-page-title">이체</span>
+    <div class="tr-menu">
       <svg viewBox="0 0 22 22"><path d="M3 6h16M3 11h16M3 16h16" stroke-linecap="round"/></svg>
     </div>
   </div>
   <div class="rc-body">
     <div class="rc-question">누구에게 보낼까요?</div>
     <div class="rc-input-label">입금계좌</div>
-    <div class="rc-input">
+    <div class="rc-input-box">
       <span>계좌번호 입력</span>
       <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M7 19c0-3 2-5 5-5s5 2 5 5"/></svg>
     </div>
@@ -525,7 +332,7 @@
         연락처 이체
       </div>
       <div class="rc-quick-btn">
-        <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="6"/><path d="M6 9h6M9 6v6"/></svg>
+        <svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"/><path d="M13 13l3 3" stroke-linecap="round"/></svg>
         계좌 검색
       </div>
     </div>
@@ -533,153 +340,154 @@
       <div class="rc-tab active">계좌번호</div>
       <div class="rc-tab">즐겨찾기</div>
     </div>
-    <div class="rc-section-title">
-      내 계좌
-      <div class="chevron"><svg viewBox="0 0 18 18"><path d="M4 7l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="rc-section">내 계좌 <svg viewBox="0 0 18 18"><path d="M4 7l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="rc-recent">최근 이체 <span class="rc-count">3</span>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 6l5 5 5-5" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <div class="rc-recent-title">최근 이체 <span class="rc-recent-count">3</span></div>
-    <div class="rc-person" onclick="goTransfer()">
-      <div class="rc-person-logo" style="background:#00b2ff;">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 4l5 3v4c0 3-2 5-5 6-3-1-5-3-5-6V7z" fill="#fff"/></svg>
-      </div>
-      <div class="rc-person-info">
-        <div class="rc-person-name">박현재</div>
-        <div class="rc-person-bank">토스 100004360984</div>
-      </div>
-      <div class="rc-person-date">최종이체 2026.04.16</div>
-    </div>
-    <div class="rc-person" onclick="goTransfer()">
-      <div class="rc-person-logo" style="background:#ffcd00;">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><text x="3" y="16" font-size="13" font-weight="900" fill="#000">KB</text></svg>
-      </div>
-      <div class="rc-person-info">
-        <div class="rc-person-name">박현재</div>
-        <div class="rc-person-bank">케이 100115883603</div>
-      </div>
-      <div class="rc-person-date">최종이체 2026.04.10</div>
-    </div>
-    <div class="rc-person" onclick="goTransfer()">
-      <div class="rc-person-logo" style="background:#f5c400;">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><text x="3" y="16" font-size="11" font-weight="900" fill="#000">*KB</text></svg>
-      </div>
-      <div class="rc-person-info">
-        <div class="rc-person-name">한혜숙</div>
-        <div class="rc-person-bank">국민 229240507667</div>
-      </div>
-      <div class="rc-person-date">최종이체 2026.04.06</div>
-    </div>
+
+```
+<!-- 토스: 흰 배경 + 파란 물방울 -->
+<div class="rc-person" onclick="goTransfer('toss')">
+  <div class="rc-logo">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAsACwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LHSigdK89+K3xNsfBw/s+zRL3WHXcIifkhB6M+PXso5PtXThMHWxlVUqMbyZzYvGUcHSdWtKyR6FxRXyHr3jHXtcL3etaxcNFkfIrFY4wWA4ReOM+5r6C0j4teANQultItfigkY7V+0xvEpP+8wx+Zr2cw4axeDhGSTne9+VNpWt1+fkeNlfEuGzCU18CTSV2rv5fd1e53VApFIYBlIIPIIpRXzp9EQX0xtrGe4CFzFEzhR3wCcV8O61qt1qWq3Oo3srS3FzIZZGPck5r7p6jFeH+PPgHBqWpTX/AIb1SOwEzF2tbiMtGpPJ2svIHsQcV9jwhmuDwFSosS7c1rP0vpofK8TZZicdGDoq6je69banzx4h1JU8OkIfnadFI+nP9K5yK+d+rE5rqfjF4Vu/BusQ+Hby8t7qcRi5kaDdtXdwB8wBzgZ/Grnwe+FOv+PNQjlSKWy0VH/0i/dcAgdVjz99v0Hf0P6xSxuDoYN4qc0qe9/8v0R8ngssmr0VH3rvT8D6X/ZivtRvvhJYPqDySCKaaG2d+SYVbC8+gOVHsBXpwqjoOlWOh6NaaRpsAgs7SJYoYx2UD9T3J7mrwr8DzHEwxWLqVoKylJtL1Z+n4ak6VGNNu7SSAdKKKK4jc5PWPhx4M1nxO3iPV9Eh1DUGVF3XDM6AKMD5Cdv6V1MEUUEKQwxpHGgCqiKAFA7ADoKfRW1TEVasYxnJtR0V3t6djOFKEG3FJX3CgUUViaH/2Q==" style="width:44px;height:44px;border-radius:50%;display:block;">
+  </div>
+  <div class="rc-info">
+    <div class="rc-name">박현재</div>
+    <div class="rc-bank">토스 100004360984</div>
   </div>
 </div>
 
-<!-- ========== 이체 화면 ========== -->
-<div class="screen slide-right" id="transferScreen">
-  <!-- 상태바 -->
-  <div class="tr-status">
-    <span class="clock-el">14:25</span>
-    <div class="sig-icons">
-      <div class="sig-bars">
-        <span></span><span></span><span></span><span></span>
-      </div>
-      <span class="wifi-icon">
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-          <path d="M8 9.5a1 1 0 100 2 1 1 0 000-2z" fill="#fff"/>
-          <path d="M5.17 7.17a4 4 0 015.66 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M2.34 4.34a8 8 0 0111.32 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <div class="battery-wrap"><span>54</span></div>
-    </div>
+<!-- 케이뱅크: 남색 배경 + 흰 Kbank -->
+<div class="rc-person" onclick="goTransfer('kbank')">
+  <div class="rc-logo">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAsACwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD5Xoq3ZaZqN7Z3l7Z2FzcW1iiyXcscZZIFZtoZyPugnjJ71ebwp4mXTl1JvD+qCza0N6s5tXCG3DBTKDj7mSBu6ZIr9ndSCdm0BjUUUVYBRVy30vUrjS7rVILC5lsbNkS5uUjJjhZyQgZugLYOM9cVTpJp7Ae5/stw+GbjQ/H0HjG4lt9Aez08Xzx9RH9sXr6KTgMRyFJNdtY3GqN8VfixD490aW9gtvCrrbaXp0pSOTT0mjMSW7AcRlMEsBnljjPFfM+ma5q2maZqWm2N7JBaapEkN7EoGJkVtyg5HZueMVt2HxI8c2F7o19aeJL2K50S3Ntp8o2loYT1jyR8ycfdbIHavExOWValWdSLXveumkdu12rPyt2s1Y9iT4ffD+YR+P18Kaomjnws+tt4WF65kMy3Hk8S43+QR8+euOenFLL4E+G9np+oeN7vwhqY0iXwrBrlvokmoyRvbzG58po/N+8Y2G0gkE4JI7Y8i/4Wn8Qf+E2/4TT/AISq/wD7e8ryftWV/wBV/wA89mNmzPO3GM89eaj1/wCJfjvX47uPWfE17ereWxtbgS7TvhMnm7D8vTfzx06dOKj+z8bdXqaaX96W3b/7bdgfSugfDXwtqmi+I9D0fzNH0HxBB4d1n7G05kmjVxPI1tEzfedtm1c929sV8neJ5rCbxDfyaZpL6TZGdxBZPIzvboDgIzNyWGOc989K1pfiF40ksks28RXnkJHaRIq7VKrakm3AIGR5ZJIOc+uaxdd1fUdc1i61jVbk3N9dyGW4mKKpkc9WIUAZPfjmurL8HXw9SUqkrp+b7JfO9t/LzYFGiiivVGFFFFABRRRQB//Z" style="width:44px;height:44px;border-radius:50%;display:block;">
   </div>
+  <div class="rc-info">
+    <div class="rc-name">박현재</div>
+    <div class="rc-bank">케이 100115883603</div>
+  </div>
+</div>
 
-  <!-- 헤더 -->
+<!-- 국민은행: 황금갈색 배경 + 필기체 Kb -->
+<div class="rc-person" onclick="goTransfer('kb')">
+  <div class="rc-logo">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAsACwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDCp9vE888cEYy8jhFHuTgVreGdFi1r7TCt9HBdooMETjiT15/wq34c0i8s/GdhaX1u0TrIZBnkMFBOQehHFeFic0oUlVipe/CLdnp0vp3XoelTw058rtpJ2v8AMytf01tJ1WWweZZmjC5dRgcgH+tR6dpt9qJkFnbPKIl3SMOFUe5PFdPqWhy6n4k1PUL6YWWmxTkPcScbtoAwuevTr/Oquqa0JbJ9F8N2ksNgqlpXVSZJQOrN3A9c/p0rgoZpVrUadOjaVS0eeT+GN0r3tbXtFfOyN54WEJylPSN3ZdX/AMDzOXHIzRRRX0JwDkZkdXRmVlOVZTgg+1eqeE7u+e2toteaH7Y+WtFcfvioXlmHbjv37153pGo2+mxmeOyE1+G/dSynMcQ9Qndvc8Vp+B7ua48bW1xczPLLLvDO5ySShr5biPByxuGqOUUlTTaf2m0tl2Xe+r2t1PTy6sqNWKTu5NK3T5+Zb+JMGs/bRPdSebp+7EBjGET2Yf3vfv29Ki+HVvJcPq6Q481rIxpk4GWOOfypsfiCXTNZ1Gwu4heabJcyCS3fnALHlc/y6fTrWxp1qtjFd6l4UQ6hBeReX5QkxJbPzyc8kc9Ov1rz61SthssWDnFK6jyyWkXqnaX8st730fR30N4RhUxPtotu17rdr07r8jFi8N6bJef2XFr8b6kAQEEB8osByu71rnLmGS2uZLeZdskTlHHoQcGup0Owj8N3I1bXJY0miU+RaJIGldiMZOOg5rmLy4e6u5rqTG+aRnbHqTmvey2tWqV5pVPaU0l7zSXva35bJXVrd7PS+5w4iEIwXu8srvTy879SGrmiXf2DWLS8JIEMys2P7uef0zVOivXq041YSpy2as/mckZOMlJdC9r8sM+uX09u4eGSd3Rh3BOc1BZ3d1ZymS0uJYHIwWjYgkelQUVMKEI0lSeqSS1627jc25OWzDvmiiitiT//2Q==" style="width:44px;height:44px;border-radius:50%;display:block;">
+  </div>
+  <div class="rc-info">
+    <div class="rc-name">한혜숙</div>
+    <div class="rc-bank">국민 229240507667</div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- 이체 화면 -->
+
+<div class="screen hide-right" id="transferScreen">
   <div class="tr-header">
-    <div class="back-btn" onclick="goBack()">
+    <div class="tr-back" onclick="goBackFromTransfer()">
       <svg viewBox="0 0 20 20"><path d="M13 4l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <span class="tr-title">이체</span>
-    <span class="tr-cancel" onclick="goBack()">취소</span>
+    <span class="tr-cancel" onclick="goHome()">취소</span>
   </div>
-
   <div class="tr-body">
-    <!-- 내 계좌에서 -->
-    <div class="tr-section-label">내 계좌에서</div>
-    <div class="tr-from">
-      <div class="ibk-logo-sm">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M3 9l4 4 8-8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+    <div class="tr-label">내 계좌에서</div>
+    <div class="tr-from-row">
+      <div class="ibk-sm-logo">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <span class="tr-from-text">기업 341-127621-02-013</span>
-      <div class="tr-from-chevron">
-        <svg viewBox="0 0 14 14"><path d="M3 5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
+      <div class="tr-chevron"><svg viewBox="0 0 14 14"><path d="M3 5l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </div>
     <div class="tr-avail">출금가능금액 0원</div>
-
     <div class="tr-divider"></div>
-
-    <!-- 수취인 -->
-    <div class="tr-section-label">한혜숙님 계좌로</div>
-    <div class="tr-to">
-      <div class="kb-logo-sm">KB</div>
-      <span class="tr-to-text">국민 229240507667</span>
+    <div class="tr-label" id="trToLabel">한혜숙님 계좌로</div>
+    <div class="tr-to-row">
+      <div class="tr-to-logo" id="trToLogo"></div>
+      <span class="tr-to-text" id="trToText">국민 229240507667</span>
       <span class="tr-change">변경</span>
     </div>
-
-    <!-- 금액 입력 -->
-    <div class="tr-amount-wrap">
-      <div class="tr-amount-ph">얼마를 보낼까요?</div>
-    </div>
-
-    <div class="tr-flex-gap"></div>
-
+    <div class="tr-amount-wrap"><div class="tr-amount-ph">얼마를 보낼까요?</div></div>
+    <div class="tr-gap"></div>
     <div class="tr-usage">이용안내</div>
-
-    <div class="tr-checkbox-row">
-      <div class="tr-checkbox"></div>
-      <span class="tr-checkbox-label">예약이체</span>
-    </div>
-
-    <button class="tr-next-btn">다음</button>
+    <div class="tr-cb-row"><div class="tr-cb"></div><span class="tr-cb-label">예약이체</span></div>
+    <button class="tr-next">다음</button>
   </div>
 </div>
 
 <script>
-  function updateClock() {
-    const now = new Date();
-    const t = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    document.querySelectorAll('.clock-el').forEach(el => el.textContent = t);
+var recipients = {
+  toss: {
+    label: '박현재님 계좌로',
+    text: '토스 100004360984',
+    logo: '<img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LrN17XtG0K3E+r6jb2aNwvmN8zf7q9T+ArP+I3iVPCXg+91oxiWWJQkMZ6NIxwoPtnk+wNfJl7r99rerz6pq949zcsC7O56Ac4A7Aegr6XIuHZ5nGVWT5YLTzb8v8z5rP+IVlaUKceabV/Jev+R9laPqNnq2mQajYSebbXCb432lcj6HmrdfGvhL45+L9Dt7K1huLa6sLaNY1tpYFAKgdNygMD75P419ceGdWh17w7p2tW6NHFfW0dwiN1UOoOD9M1lnnDuKyiSlVtyybs07/fotbHoZZmlPHRsk1Jb3/TV6Fbxx4as/Fvhm60S+d40mAKyp96Nwcqw9ee3cZr5e+Kfwn1jwN4bvNdutX0+4tFIgjCb1kZn+UcEYHc9a+vKrajYWGowrBqFlb3cSuHVJ4g6hh0OCOo9anJeIMTlclGLvTbu1p+D6XFmWT4fHe/Je9ayZ8S/Bz4TeIPHGoQzNbzWOhhgZ76RdoZe6xZ+8x6ZHA7+h+29Os7bTtPtrCziEVtbRLFEg6KijAH5Cp0VUUKqhVAwABgAUtVn/ABFiM6qqVRcsY7Jfm31ZtgMvp4OL5dW92f/Z" style="width:32px;height:32px;border-radius:50%;display:block;">'
+  },
+  kbank: {
+    label: '박현재님 계좌로',
+    text: '케이 100115883603',
+    logo: '<img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD5Xor1f4afDnQ9e+Gt5441q4v4rHRtRm/tRbZ1Mj2yQRsiRKVPzvLIFLn5VUknpy/Xfg/dXml6JqPg+4s7ua/0qwu5tKe+DXsbXMgj8wJtA8re6LnORnJ45r9ceY0FNwbtZ28riueS0V6a3wX15biRj4j8J/2ZHbtNJqw1EmzTZMkMiFwmd6vIgIxyGBBOaf8AED4T3/hXwXZazdFLaa3+02+qNPcAxyXaXkkKQ24AyzGOPeR2UFiRkCmsww7koqWrdhnN+EfiD4i8LWFpY6U9oLe2v5L7ZLAJBMZIRDJHICcPEyDBQ/WtS1+Lviyy0W107T49KsprTyo4dQhsx9rEEUwmit/MJJMSuFIUjOFAJIrz+itJ4OhN3lBMVj0LxL8XPEeuaHdaIdN8P6dp9zG6PBp+niBRvmimdhhj8xeFDk+46YxH4w+LXizxXpN3pWsjTZrO5keYxLbYEczTNMZUOcq+XdcjqjFTniuBoqY4HDxtaC0d16jsf//Z" style="width:32px;height:32px;border-radius:50%;display:block;">'
+  },
+  kb: {
+    label: '한혜숙님 계좌로',
+    text: '국민 229240507667',
+    logo: '<img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDCrT/s5F8M/wBrO7iRrvyI0GMEBcsan0LUdOS2bTdXsRPayPuWWIYmiY8ZB7j2/nXVa3p+n6J4Xs0uYp7+KCd5I02bVdmzt8z0AB/E18pmObTw9enQ5GpSkrWs+ZWez6O9k07Wv21PYw+FVSEp3VkvuZxtpo882lT6pNIltaxj5HkBzM/ZUHf69Kza34Wu/Ekl9NeSSMbS0aS3hhXCqcgKqqO3P1rNv9J1KwiWW8spoEY4DMOM+hx0Psa7sLi37SVOvNKd/h7aXsusn1b/AAMalL3VKCdu/wDWxJp9/Fp8IltYCb85xPJgiEeqL/e/2j07Cuh/tu7sfCmkTgi5SWWeO5jm+YTDdnDe/PWuNq29876RHpzINsc7TK+eRuUAjH4ZrPG5XSxEoNxv713ftyyX4N3Vtt9yqOJlTTSdtNPvX+R1miCCJL2/8MEvJPbmNraSVVktWznfk/eUetY9zLDpvh65003UV1eXsySTeU+9IlXnluhYn0rBBI6H2pKillHJUcpT5k3F6r3ny/CnLql00T7t63csVeNkrbry13svM//Z" style="width:32px;height:32px;border-radius:50%;display:block;">'
   }
-  updateClock();
-  setInterval(updateClock, 1000);
+};
 
-  function goRecipient() {
-    document.getElementById('mainScreen').classList.replace('slide-left','slide-right');
-    document.getElementById('recipientScreen').classList.replace('slide-right','slide-left');
-  }
-  function goTransfer() {
-    document.getElementById('recipientScreen').classList.replace('slide-left','slide-right');
-    document.getElementById('transferScreen').classList.replace('slide-right','slide-left');
-  }
-  function goBack() {
-    const transfer = document.getElementById('transferScreen');
-    const recipient = document.getElementById('recipientScreen');
-    const main = document.getElementById('mainScreen');
-    if (transfer.classList.contains('slide-left')) {
-      transfer.classList.replace('slide-left','slide-right');
-      recipient.classList.replace('slide-right','slide-left');
-    } else {
-      recipient.classList.replace('slide-left','slide-right');
-      main.classList.replace('slide-right','slide-left');
-    }
-  }
+function closePopup() {
+  document.getElementById('popupOverlay').style.display = 'none';
+}
 
-  document.getElementById('refreshBtn').addEventListener('click', function() {
-    this.classList.add('spin');
-    setTimeout(() => this.classList.remove('spin'), 500);
-  });
+function goRecipient() {
+  document.getElementById('mainScreen').classList.remove('show');
+  document.getElementById('mainScreen').classList.add('hide-left');
+  document.getElementById('recipientScreen').classList.remove('hide-right');
+  document.getElementById('recipientScreen').classList.add('show');
+}
+
+function goTransfer(type) {
+  var r = recipients[type];
+  document.getElementById('trToLabel').textContent = r.label;
+  document.getElementById('trToText').textContent = r.text;
+  document.getElementById('trToLogo').innerHTML = r.logo;
+  document.getElementById('recipientScreen').classList.remove('show');
+  document.getElementById('recipientScreen').classList.add('hide-left');
+  document.getElementById('transferScreen').classList.remove('hide-right');
+  document.getElementById('transferScreen').classList.add('show');
+}
+
+function goBackFromTransfer() {
+  document.getElementById('transferScreen').classList.remove('show');
+  document.getElementById('transferScreen').classList.add('hide-right');
+  document.getElementById('recipientScreen').classList.remove('hide-left');
+  document.getElementById('recipientScreen').classList.add('show');
+}
+
+function goBack() {
+  document.getElementById('recipientScreen').classList.remove('show');
+  document.getElementById('recipientScreen').classList.add('hide-right');
+  document.getElementById('mainScreen').classList.remove('hide-left');
+  document.getElementById('mainScreen').classList.add('show');
+}
+
+function goHome() {
+  document.getElementById('transferScreen').classList.remove('show');
+  document.getElementById('transferScreen').classList.add('hide-right');
+  document.getElementById('recipientScreen').classList.remove('show');
+  document.getElementById('recipientScreen').classList.remove('hide-left');
+  document.getElementById('recipientScreen').classList.add('hide-right');
+  document.getElementById('mainScreen').classList.remove('hide-left');
+  document.getElementById('mainScreen').classList.add('show');
+}
+
+document.getElementById('refreshBtn').addEventListener('click', function() {
+  this.classList.add('spin');
+  setTimeout(function() { document.getElementById('refreshBtn').classList.remove('spin'); }, 500);
+});
 </script>
+
 </body>
 </html>
-
-
